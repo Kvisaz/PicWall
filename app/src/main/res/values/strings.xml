@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">PicWall</string>
+    <string name="logTag">ArelloPicWall:</string>
+</resources>
