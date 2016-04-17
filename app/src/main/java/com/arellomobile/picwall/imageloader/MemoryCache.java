@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 * */
 public class MemoryCache {
     private static final String TAG = "MemoryCache";
-    private static final int SIZE = 20;
+    private static final int SIZE = 50;
 
     //Last argument true for LRU ordering
     private Map<String, Bitmap> cache = Collections.synchronizedMap(

@@ -4,12 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.arellomobile.picwall.events.DebugMessageEvent;
 import com.arellomobile.picwall.events.LogEvent;
 import com.arellomobile.picwall.events.ViewRequestPage;
 import com.arellomobile.picwall.presenter.PictureGridPresenter;
-import com.arellomobile.picwall.view.DebugView;
-import com.arellomobile.picwall.view.PictureGridView;
+import com.arellomobile.picwall.view.GridView;
 import com.arellomobile.picwall.view.PictureView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -21,10 +19,8 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     PictureGridPresenter pictureGridPresenter;
 
-    private PictureGridView pictureGridView;
+    private GridView gridView;
     private PictureView pictureView;
-
-//    private DebugView debugView;
 
 
     @Override
@@ -33,13 +29,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-
-//        pictureGridPresenter = new PictureGridPresenter(this);
+        //  pictureGridPresenter = new PictureGridPresenter(this);
         App.getComponent().inject(this);
 
         View rootView = getWindow().getDecorView();
-//        debugView = new DebugView(rootView);
-        pictureGridView = new PictureGridView(rootView);
+        gridView = new GridView(rootView);
         pictureView = new PictureView(rootView);
 
     }
@@ -49,24 +43,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//        EventBus.getDefault().register(this);
         pictureGridPresenter.registerEventBus();
-        pictureGridView.registerEventBus();
+        gridView.registerEventBus();
         pictureView.registerEventBus();
-//        debugView.registerEventBus();
 
         EventBus.getDefault().post(new LogEvent("--------- Start NEW! -----------"));
-        EventBus.getDefault().post(new ViewRequestPage(3));
+        EventBus.getDefault().post(new ViewRequestPage(1));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        EventBus.getDefault().unregister(this);
         pictureGridPresenter.unregisterEventBus();
-        pictureGridView.unregisterEventBus();
+        gridView.unregisterEventBus();
         pictureView.unregisterEventBus();
-//        debugView.unregisterEventBus();
+
     }
 
 }

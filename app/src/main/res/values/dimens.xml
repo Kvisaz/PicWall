@@ -7,4 +7,8 @@
     <dimen name="gallery_item_corner_radius">10dp</dimen>
     <dimen name="progress_bar_height">20dp</dimen>
     <dimen name="progress_bar_text_size">20sp</dimen>
+    <dimen name="grid_picture_max_width">240dp</dimen>
+    <dimen name="color_grid_page_title_size">18sp</dimen>
+    <dimen name="color_grid_page_title_padding">10dp</dimen>
+    <dimen name="color_grid_page_title_margin">5dp</dimen>
 </resources>

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.events.LogEvent;
-import com.arellomobile.picwall.events.ServerPageSuccessEvent;
 import com.arellomobile.picwall.events.ServerPicturePageEvent;
 import com.arellomobile.picwall.model.PictureItem;
 import com.arellomobile.picwall.network.model.DesktopprPicture;
@@ -46,7 +45,7 @@ public class Client {
         public void onResponse(Call<DesktopprResponse> call, Response<DesktopprResponse> response) {
             if(response.isSuccessful()){
                 EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response success"));
-  //              EventBus.getDefault().post(new ServerPageSuccessEvent(response.body()));
+
 
                 PicturePage page = getPicturePageFromResponse(response.body());
                 EventBus.getDefault().postSticky(new ServerPicturePageEvent(page));

@@ -2,9 +2,9 @@ package com.arellomobile.picwall.dagger;
 
 import com.arellomobile.picwall.MainActivity;
 import com.arellomobile.picwall.imageloader.ImageLoader;
-import com.arellomobile.picwall.presenter.PictureGridPresenter;
-import com.arellomobile.picwall.view.PictureGridView;
+import com.arellomobile.picwall.view.GridView;
 import com.arellomobile.picwall.view.PictureView;
+import com.arellomobile.picwall.view.grid.PageAdapter;
 
 import javax.inject.Singleton;
 
@@ -16,7 +16,9 @@ public interface AppComponent {
     ImageLoader imageloader();
 
     void inject(MainActivity activity);
+    void inject(GridView gridView);
 
-    void injectImageLoader(PictureGridView pictureGridView);
+    void injectImageLoader(PageAdapter adapter);
+
     void injectImageLoader(PictureView pictureView);
 }

@@ -14,12 +14,28 @@ public class PicturePage {
     public int totalPageAmount;
     public int totalPictureAmount;
 
+    public String title;
+
+    private int selectedPicture;
+
     public PicturePage(){
         pictures = new ArrayList<>();
+        title = "";
+        selectedPicture = 0;
     }
 
     public int getNumberOfPages(){
         if(pictures==null) return 0;
         else return pictures.size();
+    }
+
+    public void setSelectedPicture(int selectedPicture){
+        this.selectedPicture = selectedPicture;
+        if(selectedPicture < 0) this.selectedPicture = 0;
+        else if (selectedPicture > pictures.size()) this.selectedPicture = pictures.size()-1;
+    }
+
+    public PictureItem getSelectedPicture(){
+        return pictures.get(selectedPicture);
     }
 }

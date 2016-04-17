@@ -13,9 +13,10 @@ import android.widget.TextView;
 import com.arellomobile.picwall.App;
 import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.R;
-import com.arellomobile.picwall.events.DebugMessageEvent;
-import com.arellomobile.picwall.events.LoadBigPictureUrlEvent;
+import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
 import com.arellomobile.picwall.imageloader.ImageLoader;
+import com.arellomobile.picwall.model.PictureItem;
+import com.arellomobile.picwall.model.PicturePage;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -59,8 +60,9 @@ public class PictureView {
 
     // ------------------------ EventBus handlers --------------
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onLoadBigPictureUrl(LoadBigPictureUrlEvent event) {
-        load(event.pictureUrl);
+    public void onLoadSelectedPicture(LoadSelectedPictureEvent event) {
+        PictureItem pictureItem = event.page.getSelectedPicture();
+        load(pictureItem.urlFullImage);
     }
 
 }
