@@ -4,6 +4,7 @@ import com.arellomobile.picwall.MainActivity;
 import com.arellomobile.picwall.imageloader.ImageLoader;
 import com.arellomobile.picwall.view.GridView;
 import com.arellomobile.picwall.view.PictureView;
+import com.arellomobile.picwall.view.bigpicture.PictureAdapter;
 import com.arellomobile.picwall.view.grid.PageAdapter;
 
 import javax.inject.Singleton;
@@ -18,7 +19,8 @@ public interface AppComponent {
     void inject(MainActivity activity);
     void inject(GridView gridView);
 
-    void injectImageLoader(PageAdapter adapter);
+    void inject(PageAdapter pageAdapter);
+    void inject(PictureAdapter pictureAdapter);
 
-    void injectImageLoader(PictureView pictureView);
+    void inject(PictureView pictureView);
 }

@@ -1,7 +1,7 @@
 package com.arellomobile.picwall.network.model;
 
 public class DesktopprPagination {
-    public  int current; //  "current":1,
+    public  int current; //  "currentPosition":1,
     public  int previous; // "previous":null,
     public  int next; // "next":2,
     public  int per_page; // "per_page":20,

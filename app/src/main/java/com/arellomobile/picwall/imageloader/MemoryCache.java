@@ -16,12 +16,12 @@ import java.util.Map.Entry;
 * */
 public class MemoryCache {
     private static final String TAG = "MemoryCache";
-    private static final int SIZE = 50;
+    private static final int SIZE = 20;
 
     //Last argument true for LRU ordering
     private Map<String, Bitmap> cache = Collections.synchronizedMap(
             new LinkedHashMap<String, Bitmap>(SIZE, 1.5f, true));
-    //current allocated size
+    //currentPosition allocated size
     private long size = 0;
 
     //max memory cache folder used to download images in bytes

@@ -14,6 +14,10 @@ public class Constants {
     public static String GRID_PAGE_TITLE_MID;
     public static String GRID_PAGE_TITLE_POSTFIX;
 
+    public final static int GRID_PICTURE_SELECT_ANIMATION_TIME = 1500;
+
+    public final static int PICTURE_VIEWER_MAX_PAGES = 3;
+
     public final static int GRID_MAX_PAGES_IN_MEMORY = 32;
 
 
@@ -21,6 +25,7 @@ public class Constants {
     public static String SERVER_MESSAGE_SIGNED_1;
     public static String SERVER_MESSAGE_SIGNED_100;
     public static String SERVER_MESSAGE_UNKNOWN;
+
 
 
     public static void getResources(Context context){

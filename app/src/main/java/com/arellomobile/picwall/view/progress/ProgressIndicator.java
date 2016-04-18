@@ -1,11 +1,11 @@
-package com.arellomobile.picwall.view;
+package com.arellomobile.picwall.view.progress;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
 public class ProgressIndicator {
-    private final ProgressBar progressBar;
+    protected final ProgressBar progressBar;
     private final TextView progressText;
 
     private String prefixText = "Loading ";
@@ -14,6 +14,7 @@ public class ProgressIndicator {
     public ProgressIndicator(ProgressBar progressBar, TextView progressText){
         this.progressBar = progressBar;
         this.progressText = progressText;
+        setMax(100);
     }
 
     public void setMax(int max){

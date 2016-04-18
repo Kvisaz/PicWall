@@ -1,5 +1,7 @@
 package com.arellomobile.picwall.view.grid;
 
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,7 +15,6 @@ import com.arellomobile.picwall.App;
 import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.R;
 import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
-import com.arellomobile.picwall.events.LogEvent;
 import com.arellomobile.picwall.imageloader.ImageLoader;
 import com.arellomobile.picwall.model.PictureItem;
 import com.arellomobile.picwall.model.PicturePage;
@@ -29,11 +30,14 @@ public class PageAdapter extends SectionedRecyclerViewAdapter<RecyclerView.ViewH
 
     @Inject
     ImageLoader imageLoader;
+    @Inject
+    Context context;
+
     private List<PicturePage> pages;
 
     public PageAdapter(List<PicturePage> pages){
         this.pages = pages;
-        App.getComponent().injectImageLoader(this);
+        App.getComponent().inject(this);
     }
 
     @Override
@@ -76,11 +80,11 @@ public class PageAdapter extends SectionedRecyclerViewAdapter<RecyclerView.ViewH
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == VIEW_TYPE_HEADER){
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.picture_grid_page_title,parent,false);
+            View v = LayoutInflater.from(context).inflate(R.layout.picture_grid_page_title,parent,false);
             return new SectionViewHolder(v);
        }
         else {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.picture_grid_item,parent,false);
+            View v = LayoutInflater.from(context).inflate(R.layout.picture_grid_item,parent,false);
             return new ItemViewHolder(v);
         }
     }
@@ -129,9 +133,23 @@ public class PageAdapter extends SectionedRecyclerViewAdapter<RecyclerView.ViewH
         Log.d(Constants.LOG_TAG,"layoutPosition = " + layoutPosition + " total=" + total + " page =  "+page + " picture_in_page="+picture_in_page);
 
         PicturePage pageCurrent = pages.get(page);
-        pageCurrent.setSelectedPicture(picture_in_page);
+        pageCurrent.setSelected(picture_in_page);
         LoadSelectedPictureEvent event = new LoadSelectedPictureEvent(pageCurrent);
         EventBus.getDefault().postSticky(event);
+        highlight(v);
+    }
+
+    public void highlight(View v) {
+        if(v==null) return;
+        CardView cardView = (CardView)v.findViewById(R.id.picItemCardView);
+        if(cardView==null) return;
+        cardViewBackGroundAnimate(cardView);
+    }
+
+    private void cardViewBackGroundAnimate(CardView cardView) {
+        ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(cardView,View.ALPHA,1,0.5f,0.75f,1);
+        alphaAnimation.setDuration(Constants.GRID_PICTURE_SELECT_ANIMATION_TIME);
+        alphaAnimation.start();
     }
 
     // SectionViewHolder Class for Sections

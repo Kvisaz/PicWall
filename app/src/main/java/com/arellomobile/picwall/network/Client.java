@@ -99,6 +99,13 @@ public class Client {
             pictureItem.colorBackground=Color.WHITE;
         }
 
+        try{
+            pictureItem.colorBackground2 = Color.parseColor("#"+desktopprPicture.palette[1]);
+        }
+        catch (Exception ex){
+            pictureItem.colorBackground2=Color.LTGRAY;
+        }
+
         return pictureItem;
     }
 

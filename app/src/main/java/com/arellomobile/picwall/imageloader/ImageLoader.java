@@ -4,13 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
-import com.arellomobile.picwall.Constants;
-import com.arellomobile.picwall.view.ProgressIndicator;
+import com.arellomobile.picwall.view.progress.ProgressIndicator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -142,8 +138,8 @@ public class ImageLoader {
                 //Check if imageView reused
                 if (imageViewReused(url, imageView)) return;
                 // Progress Bar
-                if (progressIndicator!=null) {
-                   handler.post(new ProgressBarShowTask(progressIndicator));
+                if (progressIndicator != null) {
+                    handler.post(new ProgressBarShowTask(progressIndicator));
                 }
 
                 Bitmap freshBitmap = downloadBitmap(url, actualWidth, progressIndicator);
@@ -153,7 +149,8 @@ public class ImageLoader {
                 if (imageViewReused(url, imageView)) return;
                 // Get bitmap to display
                 // Progress Bar
-                if (progressIndicator!=null) {
+                if (progressIndicator != null) {
+                    handler.post(new ProgressBarTask(progressIndicator, PROGRESS_PERCENT_DOWNLOAD_MAX));
                     handler.post(new ProgressBarHideTask(progressIndicator));
                 }
                 handler.post(new BitmapDisplayTask(freshBitmap, url, imageView));
@@ -189,7 +186,7 @@ public class ImageLoader {
 
             int fileLength = conn.getContentLength();
 
-            if(fileLength>BIG_PICTURE_MIN_SIZE){
+            if (fileLength > BIG_PICTURE_MIN_SIZE) {
                 deleteOldCacheFiles();
             }
 
@@ -216,7 +213,7 @@ public class ImageLoader {
     }
 
 
-    private  Bitmap decodeFile(File fileForCache, int REQUIRED_WIDTH) {
+    private Bitmap decodeFile(File fileForCache, int REQUIRED_WIDTH) {
         try {
             //Decode image size
             /*
@@ -324,9 +321,9 @@ public class ImageLoader {
         int buffer_size = 2048;
 
         // 00
-       if (useProgressBar) {
+        if (useProgressBar) {
             int progressStepNum = PROGRESS_PERCENT_DOWNLOAD_MAX / PROGRESS_DOWNLOAD_PERCENT_STEP;
-            buffer_size =  (int)((double) fileLength) / progressStepNum;
+            buffer_size = (int) ((double) fileLength) / progressStepNum;
 //            Log.d(Constants.LOG_TAG,"--- CopyStreamProgress buffer size = --- "+buffer_size);
         }
 
@@ -334,7 +331,7 @@ public class ImageLoader {
 
         double readedLength = 0;
         int progressPercent = 0;
-        for (; ;) {
+        for (; ; ) {
             //Read byte from input stream
             // count != buffer size
             int count = is.read(bytes, 0, buffer_size);
@@ -345,7 +342,7 @@ public class ImageLoader {
             os.write(bytes, 0, count);
             if (useProgressBar) {
                 readedLength += count;
-                progressPercent = (int)((readedLength / fileLength) * 100);
+                progressPercent = (int) ((readedLength / fileLength) * 100);
 /*                Log.d(Constants.LOG_TAG,"--- CopyStreamProgress count = --- "+count);
                 Log.d(Constants.LOG_TAG,"--- CopyStreamProgress readedLength = --- "+readedLength);
                 Log.d(Constants.LOG_TAG,"--- CopyStreamProgress progressPercent = --- "+progressPercent);*/
@@ -373,7 +370,8 @@ public class ImageLoader {
 
     //Used to display ProgressBar in the UI thread
     private class ProgressBarShowTask implements Runnable {
-        ProgressIndicator progressIndicator;;
+        ProgressIndicator progressIndicator;
+        ;
 
         public ProgressBarShowTask(ProgressIndicator progressIndicator) {
             this.progressIndicator = progressIndicator;
@@ -400,7 +398,6 @@ public class ImageLoader {
         @Override
         public void run() {
             if (progressIndicator != null) {
-                progressIndicator.setProgress(0);
                 progressIndicator.hide();
             }
 

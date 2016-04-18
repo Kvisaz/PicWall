@@ -14,8 +14,5 @@ public class PictureItem {
     public int bytes;
 
     public int colorBackground;
-
-/*
-    public boolean isFirstInSection;
-    public String sectionTitle;*/
+    public int colorBackground2;
 }

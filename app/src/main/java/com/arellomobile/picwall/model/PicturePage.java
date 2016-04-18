@@ -5,6 +5,9 @@ import java.util.List;
 
 /**
  *  Simple picture gallery page
+ *
+ *  todo
+ *
  */
 public class PicturePage {
     public List<PictureItem> pictures;
@@ -29,10 +32,14 @@ public class PicturePage {
         else return pictures.size();
     }
 
-    public void setSelectedPicture(int selectedPicture){
+    public void setSelected(int selectedPicture){
         this.selectedPicture = selectedPicture;
         if(selectedPicture < 0) this.selectedPicture = 0;
         else if (selectedPicture > pictures.size()) this.selectedPicture = pictures.size()-1;
+    }
+
+    public int getSelected(){
+        return selectedPicture;
     }
 
     public PictureItem getSelectedPicture(){

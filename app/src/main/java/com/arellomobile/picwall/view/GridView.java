@@ -3,13 +3,16 @@ package com.arellomobile.picwall.view;
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 
 import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.R;
+import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
 import com.arellomobile.picwall.events.LogEvent;
+import com.arellomobile.picwall.events.PictureViewScrollNextPageEvent;
+import com.arellomobile.picwall.events.PictureViewScrollPrevPageEvent;
+import com.arellomobile.picwall.events.PictureViewSelectEvent;
 import com.arellomobile.picwall.events.ServerPicturePageEvent;
 import com.arellomobile.picwall.events.ViewRequestPage;
 import com.arellomobile.picwall.model.PicturePage;
@@ -38,7 +41,7 @@ public class GridView {
     Context context;
 
     public GridView(View rootView) {
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.picture_recycler_view);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.picture_grid_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new GridLayoutManager(context, Constants.GRID_ITEMS_IN_ROW);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -89,52 +92,25 @@ public class GridView {
             }
             return false;
         }
-
-
     }
 
     // ------------------------ queries for paging  --------------
      private void QueryLoadNext() {
         int nextPage = pages.get(pages.size()-1).numberNext;
-
         if (nextPage == 0 || isLoading) return;
         isLoading = true;
-//        Log.d(Constants.LOG_TAG, "--- loading next page! --" + nextPage);
         EventBus.getDefault().post(new ViewRequestPage(nextPage));
-        // включаем индикатор загрузки внизу
     }
 
     private void QueryLoadPrev() {
         int prevPage = pages.get(0).numberPrev;
         if (prevPage == 0 || isLoading) return;
         isLoading = true;
-//        Log.d(Constants.LOG_TAG, "--- loading prev page! --" + prevPage); //
         EventBus.getDefault().post(new ViewRequestPage(prevPage));
-        // включаем индикатор загрузки внизу
     }
 
-    // ------------------------ EventBus register --------------
-    public void registerEventBus() {
-        EventBus.getDefault().register(this);
-    }
 
-    public void unregisterEventBus() {
-        EventBus.getDefault().unregister(this);
-    }
-
-    // ------------------------ EventBus handlers --------------
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onServerPicturePageEvent(ServerPicturePageEvent event) {
-
-        PicturePage newPage = event.picturePage;
-        newPage.title = Constants.GRID_PAGE_TITLE_PREFIX + " " + newPage.numberCurrent + " " + Constants.GRID_PAGE_TITLE_MID + " " + newPage.totalPageAmount + " " + Constants.GRID_PAGE_TITLE_POSTFIX;
-
-        addPage(newPage);
-
-        EventBus.getDefault().post(new LogEvent(" =  =  =  =  pagesInSet = " + pages.size()));
-
-    }
-
+    // ------------------------ Вставляем и убираем страницы для Infinite Scroll  --------------
     // Вставляет страницу в правильном порядке - сверху или снизу, согласно номерам
     private void addPage(PicturePage newPage) {
         boolean added = false;
@@ -161,6 +137,11 @@ public class GridView {
     private void addPageInBegin(PicturePage newPage) {
         pages.add(0,newPage);
 
+        PicturePage loadpage = newPage;
+        loadpage.setSelected(loadpage.pictures.size()-1); // при загрузке предыдущей страницы - показываем последнюю
+        LoadSelectedPictureEvent event = new LoadSelectedPictureEvent(newPage);
+        EventBus.getDefault().postSticky(event);
+
         if(pages.size()>Constants.GRID_MAX_PAGES_IN_MEMORY) {
             pages.remove(pages.size()-1);
             mRecyclerView.scrollToPosition(pages.get(0).pictures.size()+Constants.GRID_SCROLL_K);
@@ -170,15 +151,63 @@ public class GridView {
     private void addPageInEnd(PicturePage newPage) {
         pages.add(newPage);
 
-        // при удалении - адаптер дергается, то есть надо установить его позицию в current-removed
+        PicturePage loadpage = newPage;
+        loadpage.setSelected(0); // при загрузке предыдущей страницы - показываем последнюю
+        LoadSelectedPictureEvent event = new LoadSelectedPictureEvent(newPage);
+        EventBus.getDefault().postSticky(event);
+
+        // при удалении - адаптер дергается, то есть надо установить его позицию в currentPosition-removed
         if(pages.size()+1>Constants.GRID_MAX_PAGES_IN_MEMORY) {
             pages.remove(0);
             // устанавливаем позицию на конец предыдущей страницы
             mRecyclerView.scrollToPosition(pageAdapter.getItemCount()-pages.get(pages.size()-1).pictures.size()-Constants.GRID_SCROLL_K);
         }
         // добавляем после прокрутки, чтобы не дергалось
+    }
 
+    // ------------------------ EventBus register --------------
+    public void registerEventBus() {
+        EventBus.getDefault().register(this);
+    }
 
+    public void unregisterEventBus() {
+        EventBus.getDefault().unregister(this);
+    }
+
+    // ------------------------ EventBus handlers --------------
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onServerPicturePageEvent(ServerPicturePageEvent event) {
+        PicturePage newPage = event.picturePage;
+        newPage.title = Constants.GRID_PAGE_TITLE_PREFIX + " " + newPage.numberCurrent + " " + Constants.GRID_PAGE_TITLE_MID + " " + newPage.totalPageAmount + " " + Constants.GRID_PAGE_TITLE_POSTFIX;
+        addPage(newPage);
+        Log.d(Constants.LOG_TAG," =  =  =  =  pagesInSet = " + pages.size());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSelect(PictureViewSelectEvent event){
+        // find page current number in page collection
+        int pagePosition = pages.indexOf(event.page);
+
+        int pageSumSize = 0;
+        for(PicturePage page: pages){
+            if(page==event.page) break;
+            pageSumSize += page.getNumberOfPages()+1; // заголовок секции
+        }
+
+        int realPosition = pageSumSize + event.position+1;
+        mRecyclerView.smoothScrollToPosition(realPosition);
+        View view = mLayoutManager.findViewByPosition(realPosition); // заголовок секции добавляет +1
+        pageAdapter.highlight(view);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onScrollNextPage(PictureViewScrollNextPageEvent event){
+        QueryLoadNext();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onScrollPrevPage(PictureViewScrollPrevPageEvent event){
+        QueryLoadPrev();
     }
 
 
