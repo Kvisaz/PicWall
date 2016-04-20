@@ -26,6 +26,32 @@ import retrofit2.Response;
  *
  */
 public class Client {
+    public static PicturePage getPage(int number){
+        PicturePage page = null;
+
+        try{
+            Response<DesktopprResponse> response = RetrofitFactory
+                    .getApiService()
+                    .getPage(number)
+                    .execute();
+
+            if(response.isSuccessful()){
+                EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response success"));
+                page = getPicturePageFromResponse(response.body());
+            }
+            else {
+                EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response fault"));
+            }
+        }
+        catch (Exception e)
+        {
+            EventBus.getDefault().post(new LogEvent("getPageAsync Exception - " + e.toString()));
+        }
+        finally {
+            return page;
+        }
+    }
+
 
     public static void getPageAsync(int number){
         try{
@@ -45,8 +71,6 @@ public class Client {
         public void onResponse(Call<DesktopprResponse> call, Response<DesktopprResponse> response) {
             if(response.isSuccessful()){
                 EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response success"));
-
-
                 PicturePage page = getPicturePageFromResponse(response.body());
                 EventBus.getDefault().postSticky(new ServerPicturePageEvent(page));
             }

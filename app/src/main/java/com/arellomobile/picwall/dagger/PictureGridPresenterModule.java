@@ -2,7 +2,7 @@ package com.arellomobile.picwall.dagger;
 
 import android.content.Context;
 
-import com.arellomobile.picwall.presenter.PictureGridPresenter;
+import com.arellomobile.picwall.presenter.Presenter;
 
 import javax.inject.Singleton;
 
@@ -11,11 +11,11 @@ import dagger.Provides;
 
 @Module
 public class PictureGridPresenterModule {
-    PictureGridPresenter presenter;
+    Presenter presenter;
 
     @Provides
     @Singleton
-    PictureGridPresenter providesPresenter(Context context){
-        return new PictureGridPresenter(context);
+    Presenter providesPresenter(Context context){
+        return new Presenter(context);
     }
 }

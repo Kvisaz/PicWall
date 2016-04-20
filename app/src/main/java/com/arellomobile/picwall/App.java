@@ -6,6 +6,7 @@ import com.arellomobile.picwall.dagger.AppComponent;
 import com.arellomobile.picwall.dagger.AppModule;
 import com.arellomobile.picwall.dagger.DaggerAppComponent;
 import com.arellomobile.picwall.dagger.ImageLoaderModule;
+import com.arellomobile.picwall.dagger.PictureGridPresenterModule;
 
 public class App extends Application {
     private static AppComponent component;
@@ -23,6 +24,7 @@ public class App extends Application {
         return DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
                 .imageLoaderModule(new ImageLoaderModule())
+                .pictureGridPresenterModule(new PictureGridPresenterModule())
                 .build();
     }
 }

@@ -248,10 +248,11 @@ public class ImageLoader {
 
             //decode with current scale values
             // если scale > 1, получаем уменьшенный битмап из декодера - экономим память!
-            BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize = scale;
+//            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            bfOptions.inSampleSize = scale;
+            bfOptions.inJustDecodeBounds=false;
             FileInputStream stream2 = new FileInputStream(fileForCache);
-            Bitmap bitmap = BitmapFactory.decodeStream(stream2, null, o2);
+            Bitmap bitmap = BitmapFactory.decodeStream(stream2, null, bfOptions);
             stream2.close();
             return bitmap;
 
@@ -371,7 +372,7 @@ public class ImageLoader {
     //Used to display ProgressBar in the UI thread
     private class ProgressBarShowTask implements Runnable {
         ProgressIndicator progressIndicator;
-        ;
+
 
         public ProgressBarShowTask(ProgressIndicator progressIndicator) {
             this.progressIndicator = progressIndicator;

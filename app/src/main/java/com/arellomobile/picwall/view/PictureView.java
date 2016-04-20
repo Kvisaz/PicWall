@@ -2,8 +2,8 @@ package com.arellomobile.picwall.view;
 
 
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 
@@ -11,148 +11,75 @@ import com.arellomobile.picwall.App;
 import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.R;
 import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
-import com.arellomobile.picwall.events.PictureViewScrollNextPageEvent;
-import com.arellomobile.picwall.events.PictureViewScrollPrevPageEvent;
-import com.arellomobile.picwall.events.PictureViewSelectEvent;
-import com.arellomobile.picwall.events.ProgressFullEvent;
-import com.arellomobile.picwall.imageloader.ImageLoader;
+import com.arellomobile.picwall.events.NeedNextPictureEvent;
+import com.arellomobile.picwall.events.NeedPrevPictureEvent;
+import com.arellomobile.picwall.events.PictureScrollNextEvent;
+import com.arellomobile.picwall.events.PictureScrollPrevEvent;
 import com.arellomobile.picwall.model.PictureItem;
 import com.arellomobile.picwall.model.PicturePage;
-import com.arellomobile.picwall.view.bigpicture.PictureAdapter;
-
+import com.arellomobile.picwall.presenter.Presenter;
+import com.arellomobile.picwall.view.pager.OnPictureViewerScroller;
+import com.arellomobile.picwall.view.pager.PictureFragmentAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Inject;
 
 public class PictureView {
     @Inject
-    public ImageLoader imageLoader;
-    @Inject
     Context context;
+    @Inject
+    Presenter presenter;
 
-    private List<PictureItem> pictures;
-    private PicturePage currentPage;
-    private int currentPositionInPage;
-    private int currentPositionInList;
+    private PicturePage picturePage;
+    private ViewPager viewPager;
+    private PictureFragmentAdapter pictureFragmentAdapter;
+
+    private PictureItem prevPicture;
+    private PictureItem currentPicture;
+    private PictureItem nextPicture;
 
 
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
-
-    private PictureAdapter pictureAdapter;
-
-    public PictureView(View rootView) {
+    public PictureView(View rootView, FragmentManager fm) {
         App.getComponent().inject(this);
 
-        mRecyclerView = (RecyclerView)rootView.findViewById(R.id.picture_viewer_recycleview);
-        mLinearLayoutManager = new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
-
-        pictures = new ArrayList<>(Constants.GRID_MAX_PAGES_IN_MEMORY);
-        pictureAdapter = new PictureAdapter(pictures);
-        mRecyclerView.setAdapter(pictureAdapter);
-
-        mRecyclerView.addOnScrollListener(new OnInfiniteScrollListener(mLinearLayoutManager));
-
+        viewPager = (ViewPager) rootView.findViewById(R.id.picture_view_pager);
+        pictureFragmentAdapter = new PictureFragmentAdapter(fm);
+        viewPager.setAdapter(pictureFragmentAdapter);
+        viewPager.setOffscreenPageLimit(2);
+        viewPager.addOnPageChangeListener(new OnPictureViewerScroller());
     }
 
-    // ------------------------ Infinite Scroll --------------
-    private class OnInfiniteScrollListener extends RecyclerView.OnScrollListener {
-        LinearLayoutManager mLayoutManager;
 
-        public OnInfiniteScrollListener(LinearLayoutManager layoutManager) {
-            mLayoutManager = layoutManager;
+    public void loadPicturePage(PicturePage page) {
+        picturePage = page;
+        pictureFragmentAdapter.clear();
+
+        int selectedInPage = picturePage.getSelected();
+        int currentItem = 0;
+        if (selectedInPage > 0) {
+            prevPicture = picturePage.pictures.get(selectedInPage - 1);
+            pictureFragmentAdapter.addPrev(prevPicture);
+            currentItem++;
         }
 
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            boolean ScrollRight = dx > 0 ? true : false;
-            boolean ScrollLeft = dx < 0 ? true : false;
+        currentPicture = picturePage.pictures.get(selectedInPage);
+        pictureFragmentAdapter.add(currentPicture);
+        viewPager.setCurrentItem(currentItem);
 
-            if (ScrollLeft && isSeenFirstItem(mLayoutManager)) {
-                Log.d(Constants.LOG_TAG,"------- START PICTURE ------");
-                currentPositionInPage = currentPage.pictures.indexOf(pictures.get(0));
-                EventBus.getDefault().post(new PictureViewSelectEvent(currentPositionInPage, currentPage));
-                insertPrevPic(currentPositionInPage);
-            }
-            else if (ScrollRight && isSeenLastItem(mLayoutManager)) {
-                Log.d(Constants.LOG_TAG,"------- END PICTURE ------");
-                currentPositionInPage = currentPage.pictures.indexOf(pictures.get(pictures.size()-1));
-                EventBus.getDefault().post(new PictureViewSelectEvent(currentPositionInPage, currentPage));
-                insertNextPic(currentPositionInPage);
-            }
+        if (selectedInPage < picturePage.getNumberOfPictures() - 1) {
+            nextPicture = picturePage.pictures.get(selectedInPage + 1);
+            pictureFragmentAdapter.addNext(nextPicture);
         }
-
-        private boolean isSeenFirstItem(LinearLayoutManager gridLayoutManager) {
-            int item = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
-            if (item == 0) return true;
-            return false;
-        }
-
-        private boolean isSeenLastItem(LinearLayoutManager gridLayoutManager) {
-            int item = gridLayoutManager.findLastCompletelyVisibleItemPosition();
-            if (item == pictureAdapter.getItemCount() - 1) return true;
-            return false;
-        }
-
     }
+
     // ------------------------ load new picture ----------------
-    public void loadNewPicture(PicturePage page){
-        currentPage = page;
-        currentPositionInPage = page.getSelected();
-
-        Log.d(Constants.LOG_TAG,"loadNewPicture currentPositionInPage = " + currentPositionInPage);
-
-        pictures.clear();
-        pictures.add(currentPage.getSelectedPicture());
-        insertPrevNextPictures();
-        pictureAdapter.notifyDataSetChanged();
-    }
-
-    // ------------------------ insert prev and next picture ----------------
-    private void insertPrevPic(int position) {
-        if(position>0) {
-            pictures.add(0,currentPage.pictures.get(position-1));
-            Log.d(Constants.LOG_TAG,"--------- insertPrevPic = ");
-            Log.d(Constants.LOG_TAG,"---------  position of new ==  "+(position-1));
-            Log.d(Constants.LOG_TAG,"---------  pictures.size() ==  "+pictures.size());
-            if(pictures.size()>Constants.PICTURE_VIEWER_MAX_PAGES) {
-                Log.d(Constants.LOG_TAG,"---------  pictures.remove(pictures.size()-1 ------ ");
-                pictures.remove(pictures.size()-1);
-            }
-            mRecyclerView.scrollToPosition(1);
-            pictureAdapter.notifyDataSetChanged();
-        }
-        else{
-            EventBus.getDefault().post(new PictureViewScrollPrevPageEvent(currentPage));
-        }
-    }
-
-    private void insertNextPic(int position) {
-        if(position<currentPage.pictures.size()-1){
-            pictures.add(currentPage.pictures.get(position+1));
-            Log.d(Constants.LOG_TAG,"--------- insertNextPic = ");
-            Log.d(Constants.LOG_TAG,"---------  position of new ==  "+(position+1));
-            Log.d(Constants.LOG_TAG,"---------  pictures.size() ==  "+pictures.size());
-
-            if(pictures.size()>Constants.PICTURE_VIEWER_MAX_PAGES) {
-                Log.d(Constants.LOG_TAG,"---------  pictures.remove(0)------ ");
-                pictures.remove(0);
-                mRecyclerView.scrollToPosition(pictures.size()-2); // предпоследняя
-            }
-            pictureAdapter.notifyDataSetChanged();
-        }
-        else{
-            // заказать NEXT страницу и картинку из неё
-            EventBus.getDefault().post(new PictureViewScrollNextPageEvent(currentPage));
-        }
+    public void loadNewPicture(PicturePage page) {
+        pictureFragmentAdapter.clear();
+        // 1. показываем текущую картинку
+        pictureFragmentAdapter.add(page.getSelectedPicture());
     }
 
     // ------------------------ EventBus register --------------
@@ -167,23 +94,35 @@ public class PictureView {
     // ------------------------ EventBus handlers --------------
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onLoadSelectedPicture(LoadSelectedPictureEvent event) {
-        loadNewPicture(event.page);
+
+        loadPicturePage(event.page);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onProgressFull (ProgressFullEvent event){
-//        insertPrevNextPictures();
-    }
-    
-    private void insertPrevNextPictures() {
-        // start
-        if(pictures.size()<2){
-            insertPrevPic(currentPositionInPage);
-            insertNextPic(currentPositionInPage);
-        }
-
+    public void needNextPicture(NeedNextPictureEvent event) {
+        Log.d(Constants.LOG_TAG, " ------ needNextPicture --- ");
+//        presenter.scrollNextPicture();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void needPrevPicture(NeedPrevPictureEvent event) {
+        Log.d(Constants.LOG_TAG, " ------ needPrevPicture --- ");
+//        presenter.scrollPrevPicture();
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getNextPictureScroll(PictureScrollNextEvent event){
+        pictureFragmentAdapter.add(event.next);
+        viewPager.setCurrentItem(1);
+        pictureFragmentAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getPrevPictureScroll(PictureScrollPrevEvent event){
+        pictureFragmentAdapter.addPrev(event.prev);
+        viewPager.setCurrentItem(1);
+        pictureFragmentAdapter.notifyDataSetChanged();
+    }
 
 }

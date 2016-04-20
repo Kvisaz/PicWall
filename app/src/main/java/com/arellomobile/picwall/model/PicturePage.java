@@ -27,7 +27,7 @@ public class PicturePage {
         selectedPicture = 0;
     }
 
-    public int getNumberOfPages(){
+    public int getNumberOfPictures(){
         if(pictures==null) return 0;
         else return pictures.size();
     }

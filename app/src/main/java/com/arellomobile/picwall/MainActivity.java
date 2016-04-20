@@ -4,20 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.arellomobile.picwall.events.LogEvent;
-import com.arellomobile.picwall.events.ViewRequestPage;
-import com.arellomobile.picwall.presenter.PictureGridPresenter;
+import com.arellomobile.picwall.presenter.Presenter;
 import com.arellomobile.picwall.view.GridView;
 import com.arellomobile.picwall.view.PictureView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Inject;
 
 public class MainActivity extends AppCompatActivity {
 
     @Inject
-    PictureGridPresenter pictureGridPresenter;
+    Presenter presenter;
 
     private GridView gridView;
     private PictureView pictureView;
@@ -29,12 +25,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        //  pictureGridPresenter = new PictureGridPresenter(this);
+        //  presenter = new Presenter(this);
         App.getComponent().inject(this);
 
         View rootView = getWindow().getDecorView();
         gridView = new GridView(rootView);
-        pictureView = new PictureView(rootView);
+        pictureView = new PictureView(rootView,getSupportFragmentManager());
 
     }
 
@@ -43,18 +39,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        pictureGridPresenter.registerEventBus();
+        presenter.registerEventBus();
         gridView.registerEventBus();
         pictureView.registerEventBus();
-
-        EventBus.getDefault().post(new LogEvent("--------- Start NEW! -----------"));
-        EventBus.getDefault().post(new ViewRequestPage(1));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        pictureGridPresenter.unregisterEventBus();
+        presenter.unregisterEventBus();
         gridView.unregisterEventBus();
         pictureView.unregisterEventBus();
 

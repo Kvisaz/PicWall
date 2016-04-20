@@ -32,7 +32,7 @@ public abstract class SectionedRecyclerViewAdapter<VH extends RecyclerView.ViewH
         return mHeaderLocationMap.get(position) != null;
     }
     /**
-     * Instructs the list view adapter to whether show headers for empty sections or not.
+     * Instructs the list view PictureFragmentAdapter to whether show headers for empty sections or not.
      *
      * @param show flag indicating whether headers for empty sections ought to be shown.
      */
