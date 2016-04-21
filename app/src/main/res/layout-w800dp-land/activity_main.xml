@@ -5,13 +5,23 @@
     android:layout_width="match_parent"
     android:orientation="horizontal">
 
-    <include layout="@layout/picture_grid" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="4"
+        android:orientation="vertical"
+        >
+
+        <include layout="@layout/picture_grid" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/fragment_box_for_picture_viewer"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:orientation="horizontal">
+        android:layout_weight="6"
+        android:orientation="vertical">
     </LinearLayout>
 
     <!--<include layout="@layout/picture_pager" />-->
