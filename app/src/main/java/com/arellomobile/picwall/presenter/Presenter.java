@@ -80,19 +80,24 @@ public class Presenter {
         Log.d(Constants.LOG_TAG, " ------ Presenter.scrollNextPicture --- ");
         int selected = currentPage.getSelected();
         int max = currentPage.getNumberOfPictures() - 1;
-        int next = selected + 1;
-        if (next < max) {
-            prevPicture = currentPage.getSelectedPicture();
-            currentPage.setSelected(next);
+
+        // shift selected
+        prevPicture = currentPage.getSelectedPicture();
+        if(selected == max){ // next pic on next page
+            currentPicture = pages.get(Constants.NEXT).pictures.get(0);
+            nextPicture = pages.get(Constants.NEXT).pictures.get(1);
+        }
+        else{ // next pic on this page
+            currentPage.setSelected(selected+1);
             currentPicture = currentPage.getSelectedPicture();
-            nextPicture = currentPage.pictures.get(next + 1);
-            EventBus.getDefault().post(new PictureScrollNextEvent(nextPicture));
-        } else {
-            isWaitingNextPicture = true;
-            scrollPageNext();
+            nextPicture = currentPage.pictures.get(selected+2);
         }
 
+        EventBus.getDefault().post(new PictureScrollNextEvent(nextPicture));
 
+        if(selected+1 == max) {// next pic is last on this page
+            scrollPageNext(); // query for next page
+        }
     }
 
     public void scrollPrevPicture() {
@@ -226,7 +231,7 @@ public class Presenter {
 
     // ------------------------ EventBus senders  --------------
     public void sendPage(PicturePage page, int pageType) {
-        EventBus.getDefault().post(new LoadPageEvent(page, pageType));
+        EventBus.getDefault().postSticky(new LoadPageEvent(page, pageType));
     }
 
 

@@ -6,6 +6,7 @@
     android:orientation="horizontal">
 
     <include layout="@layout/picture_grid" />
+
     <LinearLayout
         android:id="@+id/fragment_box_for_picture_viewer"
         android:layout_height="match_parent"

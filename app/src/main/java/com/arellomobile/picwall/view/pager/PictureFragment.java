@@ -35,8 +35,6 @@ public class PictureFragment extends Fragment {
         args.putString(PIC_URL_TAG, pictureUrl);
         fragment.setArguments(args);
 
-        App.getComponent().inject(fragment);
-
         return fragment;
     }
 
@@ -44,6 +42,7 @@ public class PictureFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pictureUrl = getArguments().getString(PIC_URL_TAG);
+        App.getComponent().inject(this);
     }
 
     @Nullable

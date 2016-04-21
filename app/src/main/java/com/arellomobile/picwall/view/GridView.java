@@ -104,7 +104,7 @@ public class GridView {
         if (pages.size() > Constants.GRID_MAX_PAGES_IN_MEMORY) {
             pages.remove(pages.size() - 1);
             Log.d(Constants.LOG_TAG, " ------  pages.size() > Constants.GRID_MAX_PAGES_IN_MEMORY = ");
-            mRecyclerView.scrollToPosition(pages.get(0).pictures.size() + Constants.GRID_SCROLL_K);
+            mRecyclerView.scrollToPosition(pages.get(0).pictures.size() + 1 + Constants.GRID_ITEMS_IN_ROW);
         }
     }
 
@@ -118,7 +118,7 @@ public class GridView {
             pages.remove(0);
             Log.d(Constants.LOG_TAG, " ------  pages.size() > Constants.GRID_MAX_PAGES_IN_MEMORY = ");
             // устанавливаем позицию на конец предыдущей страницы
-            mRecyclerView.scrollToPosition(pageAdapter.getItemCount() - pages.get(pages.size() - 1).pictures.size() - Constants.GRID_SCROLL_K);
+            mRecyclerView.scrollToPosition(pageAdapter.getItemCount() - pages.get(pages.size() - 1).pictures.size() -1- Constants.GRID_SCROLL_K);
         }
 
     }

@@ -53,6 +53,11 @@ public class PictureView {
     }
 
 
+    // todo  Установка картинок в страницы - через методы презентера
+    //   getPrevPic, getCurrentPic, getNextPic
+    //  скроллинг заказывает у презентера смещение -  scrollNextPicture, scrollPrevPicture
+    // после скроллинга добавляем getNextPic или getPrevPic соответственно, чтобы пересечь страницу
+
     public void loadPicturePage(PicturePage page) {
         picturePage = page;
         pictureFragmentAdapter.clear();
@@ -94,14 +99,13 @@ public class PictureView {
     // ------------------------ EventBus handlers --------------
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onLoadSelectedPicture(LoadSelectedPictureEvent event) {
-
         loadPicturePage(event.page);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void needNextPicture(NeedNextPictureEvent event) {
         Log.d(Constants.LOG_TAG, " ------ needNextPicture --- ");
-//        presenter.scrollNextPicture();
+        presenter.scrollNextPicture();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

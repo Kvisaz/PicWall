@@ -70,7 +70,8 @@ public class PageAdapter extends SectionedRecyclerViewAdapter<RecyclerView.ViewH
         ivh.titleView.setText(pic.title);
         ivh.descView.setTextColor(colorText);
         ivh.descView.setText(pic.desc);
-        ivh.imageView.setImageResource(R.drawable.thumb_placeholder);
+        ivh.imageView.setAdjustViewBounds(true);
+//        ivh.imageView.setImageResource(R.drawable.thumb_placeholder);
 
         // ImageLoader Magic - load from web or cache
         imageLoader.load(pic.urlThumbImage, ivh.imageView, Constants.GRID_PICTURE_MAX_WIDTH, true, null);
