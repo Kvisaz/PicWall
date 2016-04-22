@@ -7,7 +7,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/grid_height"
         android:layout_weight="4"
         >
         <include layout="@layout/picture_grid" />

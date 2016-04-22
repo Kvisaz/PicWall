@@ -2,15 +2,13 @@ package com.arellomobile.picwall;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
-import com.arellomobile.picwall.presenter.Presenter;
+import com.arellomobile.picwall.events.SelectInPageEvent;
 import com.arellomobile.picwall.view.GridView;
-import com.arellomobile.picwall.view.PictureView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.registerEventBus();
+//        presenter.registerEventBus();
         gridView.registerEventBus();
 //        pictureView.registerEventBus();
         if(!Constants.IS_TABLET){
@@ -75,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        presenter.unregisterEventBus();
+//        presenter.unregisterEventBus();
         gridView.unregisterEventBus();
 //        pictureView.unregisterEventBus();
         if(!Constants.IS_TABLET){
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
     // ----------------------- Event Handlers --------------------
     @Subscribe(sticky = false, threadMode = ThreadMode.MAIN)
-    public void onLoadSelectedPicture(LoadSelectedPictureEvent event) {
+    public void onLoadSelectedPicture(SelectInPageEvent event) {
        if(!Constants.IS_TABLET){
            Context activityContext = this;
            Intent intent = new Intent(activityContext,DetailActivity.class);

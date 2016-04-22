@@ -23,14 +23,11 @@ public class Constants {
     public final static int PICTURE_VIEWER_MAX_PAGES = 3;
     public static int PICTURE_VIEWER_MAX_WIDTH;
 
+    public static String PICTURE_VIEWER_START_PAGE_TEXT;
+    public static String PICTURE_VIEWER_FINAL_PAGE_TEXT;
+
 
     public final static int GRID_MAX_PAGES_IN_MEMORY = 3;
-
-
-    public static String SERVER_MESSAGE_0;
-    public static String SERVER_MESSAGE_SIGNED_1;
-    public static String SERVER_MESSAGE_SIGNED_100;
-    public static String SERVER_MESSAGE_UNKNOWN;
 
     public static boolean IS_TABLET;
     public static boolean IS_LANDSCAPE;
@@ -44,9 +41,10 @@ public class Constants {
         GRID_PAGE_TITLE_MID = context.getString(R.string.grid_page_title_mid);
         GRID_PAGE_TITLE_POSTFIX = context.getString(R.string.grid_page_title_postfix);
 
-        GRID_PICTURE_MAX_WIDTH =  context.getResources().getInteger(R.integer.grid_picture_max_width);
-        PICTURE_VIEWER_MAX_WIDTH =  context.getResources().getInteger(R.integer.picture_viewer_max_width);
         IS_TABLET = context.getResources().getBoolean(R.bool.isTablet);
+
+        PICTURE_VIEWER_START_PAGE_TEXT = context.getString(R.string.picture_viewer_nopage_text_start);
+        PICTURE_VIEWER_FINAL_PAGE_TEXT = context.getString(R.string.picture_viewer_nopage_text_final);
 
         getResourcesForOrientation(context);
     }
@@ -63,11 +61,11 @@ public class Constants {
         {
             if(IS_LANDSCAPE) {
                 GRID_ITEMS_IN_ROW = 2;
-                GRID_SCROLL_K = 2;
+                GRID_SCROLL_K = 3;
             }
             else{
                 GRID_ITEMS_IN_ROW = 5;
-                GRID_SCROLL_K = 2;
+                GRID_SCROLL_K = 6;
             }
         }
         else{ // PHONE
@@ -80,6 +78,13 @@ public class Constants {
                 GRID_SCROLL_K = 2;
             }
         }
+
+        /*
+        *    Небольшая оптимизация памяти для портретного режима (ширина большой картинки поменьше)
+        * */
+
+        GRID_PICTURE_MAX_WIDTH =  context.getResources().getInteger(R.integer.grid_picture_max_width);
+        PICTURE_VIEWER_MAX_WIDTH =  context.getResources().getInteger(R.integer.picture_viewer_max_width);
     }
 
 }

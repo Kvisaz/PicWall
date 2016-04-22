@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="grid_width">10dp</dimen>
+    <integer name="picture_viewer_max_width">600</integer>
 </resources>

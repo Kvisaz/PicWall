@@ -2,7 +2,7 @@ package com.arellomobile.picwall.dagger;
 
 import android.content.Context;
 
-import com.arellomobile.picwall.presenter.Presenter;
+import com.arellomobile.picwall.Presenter;
 
 import javax.inject.Singleton;
 

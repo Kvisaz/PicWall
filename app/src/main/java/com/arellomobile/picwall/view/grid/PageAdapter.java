@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.arellomobile.picwall.App;
 import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.R;
-import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
+import com.arellomobile.picwall.events.ShowPictureEvent;
 import com.arellomobile.picwall.imageloader.ImageLoader;
 import com.arellomobile.picwall.model.PictureItem;
 import com.arellomobile.picwall.model.PicturePage;
@@ -71,7 +71,7 @@ public class PageAdapter extends SectionedRecyclerViewAdapter<RecyclerView.ViewH
         ivh.descView.setTextColor(colorText);
         ivh.descView.setText(pic.desc);
         ivh.imageView.setAdjustViewBounds(true);
-//        ivh.imageView.setImageResource(R.drawable.thumb_placeholder);
+        ivh.imageView.setImageResource(R.drawable.thumb_placeholder);
 
         // ImageLoader Magic - load from web or cache
         imageLoader.load(pic.urlThumbImage, ivh.imageView, Constants.GRID_PICTURE_MAX_WIDTH, true, null);
@@ -131,12 +131,13 @@ public class PageAdapter extends SectionedRecyclerViewAdapter<RecyclerView.ViewH
             }
         }
 
-        Log.d(Constants.LOG_TAG,"layoutPosition = " + layoutPosition + " total=" + total + " page =  "+page + " picture_in_page="+picture_in_page);
+        Log.d(Constants.LOG_TAG,"--- layoutPosition = " + layoutPosition + " total=" + total + " page =  "+page + " picture_in_page="+picture_in_page);
 
         PicturePage pageCurrent = pages.get(page);
         pageCurrent.setSelected(picture_in_page);
-        LoadSelectedPictureEvent event = new LoadSelectedPictureEvent(pageCurrent);
+        ShowPictureEvent event = new ShowPictureEvent(pageCurrent);
         EventBus.getDefault().postSticky(event);
+
         highlight(v);
     }
 

@@ -1,7 +1,7 @@
 package com.arellomobile.picwall.model;
 
 /**
- *   Simple gallery item
+ * Simple gallery item
  */
 public class PictureItem {
     public String urlFullImage;
@@ -15,4 +15,20 @@ public class PictureItem {
 
     public int colorBackground;
     public int colorBackground2;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (!PictureItem.class.isAssignableFrom(obj.getClass())) return false;
+
+        final PictureItem other = (PictureItem) obj;
+        if ((this.urlFullImage == null) ? (other.urlFullImage != null) : !this.urlFullImage.equals(other.urlFullImage)) {
+            return false;
+        }
+
+        if (this.width != other.width || this.height != other.height)
+            return false;
+
+        return true;
+    }
 }

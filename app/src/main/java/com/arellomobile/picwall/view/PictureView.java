@@ -9,15 +9,15 @@ import android.view.View;
 
 import com.arellomobile.picwall.App;
 import com.arellomobile.picwall.Constants;
+import com.arellomobile.picwall.Presenter;
 import com.arellomobile.picwall.R;
-import com.arellomobile.picwall.events.LoadSelectedPictureEvent;
 import com.arellomobile.picwall.events.NeedNextPictureEvent;
 import com.arellomobile.picwall.events.NeedPrevPictureEvent;
-import com.arellomobile.picwall.events.PictureScrollNextEvent;
-import com.arellomobile.picwall.events.PictureScrollPrevEvent;
+import com.arellomobile.picwall.events.PictureNextLoadSuccessEvent;
+import com.arellomobile.picwall.events.PicturePrevLoadSuccessEvent;
+import com.arellomobile.picwall.events.ShowPictureEvent;
 import com.arellomobile.picwall.model.PictureItem;
 import com.arellomobile.picwall.model.PicturePage;
-import com.arellomobile.picwall.presenter.Presenter;
 import com.arellomobile.picwall.view.pager.OnPictureViewerScroller;
 import com.arellomobile.picwall.view.pager.PictureFragmentAdapter;
 
@@ -33,59 +33,53 @@ public class PictureView {
     @Inject
     Presenter presenter;
 
-    private PicturePage picturePage;
-    private ViewPager viewPager;
-    private PictureFragmentAdapter pictureFragmentAdapter;
+    private PicturePage mPicturePage;
+    private PictureItem mPictureItem;
+    private ViewPager mViewPager;
+    private PictureFragmentAdapter mPictureFragmentAdapter;
 
-    private PictureItem prevPicture;
-    private PictureItem currentPicture;
-    private PictureItem nextPicture;
+
 
 
     public PictureView(View rootView, FragmentManager fm) {
         App.getComponent().inject(this);
 
-        viewPager = (ViewPager) rootView.findViewById(R.id.picture_view_pager);
-        pictureFragmentAdapter = new PictureFragmentAdapter(fm);
-        viewPager.setAdapter(pictureFragmentAdapter);
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.addOnPageChangeListener(new OnPictureViewerScroller());
-    }
+        mViewPager = (ViewPager) rootView.findViewById(R.id.picture_view_pager);
+        mPictureFragmentAdapter = new PictureFragmentAdapter(fm);
+        mViewPager.setAdapter(mPictureFragmentAdapter);
+        mViewPager.setOffscreenPageLimit(2);
+        mViewPager.addOnPageChangeListener(new OnPictureViewerScroller());
 
-
-    // todo  Установка картинок в страницы - через методы презентера
-    //   getPrevPic, getCurrentPic, getNextPic
-    //  скроллинг заказывает у презентера смещение -  scrollNextPicture, scrollPrevPicture
-    // после скроллинга добавляем getNextPic или getPrevPic соответственно, чтобы пересечь страницу
-
-    public void loadPicturePage(PicturePage page) {
-        picturePage = page;
-        pictureFragmentAdapter.clear();
-
-        int selectedInPage = picturePage.getSelected();
-        int currentItem = 0;
-        if (selectedInPage > 0) {
-            prevPicture = picturePage.pictures.get(selectedInPage - 1);
-            pictureFragmentAdapter.addPrev(prevPicture);
-            currentItem++;
-        }
-
-        currentPicture = picturePage.pictures.get(selectedInPage);
-        pictureFragmentAdapter.add(currentPicture);
-        viewPager.setCurrentItem(currentItem);
-
-        if (selectedInPage < picturePage.getNumberOfPictures() - 1) {
-            nextPicture = picturePage.pictures.get(selectedInPage + 1);
-            pictureFragmentAdapter.addNext(nextPicture);
-        }
     }
 
     // ------------------------ load new picture ----------------
-    public void loadNewPicture(PicturePage page) {
-        pictureFragmentAdapter.clear();
+    public void showNew(PicturePage page) {
         // 1. показываем текущую картинку
-        pictureFragmentAdapter.add(page.getSelectedPicture());
+        this.mPicturePage = page;
+        this.mPictureItem = page.getSelectedPicture();
+        mPictureFragmentAdapter.set(mPictureItem);
+        mViewPager.setCurrentItem(1);
     }
+
+    public void addNext(PicturePage page) {
+        this.mPicturePage = page;
+        this.mPictureItem = page.getSelectedPicture();
+        mViewPager.setCurrentItem(1);
+        mPictureFragmentAdapter.addNext(mPicturePage.getSelectedPicture());
+        Log.d(Constants.LOG_TAG,"--- add next ----");
+        Log.d(Constants.LOG_TAG,"--- selected ----"+mPicturePage.getSelected());
+    }
+
+    public void addPrev(PicturePage page) {
+        this.mPicturePage = page;
+        this.mPictureItem = page.getSelectedPicture();
+        mViewPager.setCurrentItem(1);
+        mPictureFragmentAdapter.addPrev(mPicturePage.getSelectedPicture());
+        Log.d(Constants.LOG_TAG,"--- add prev ----");
+        Log.d(Constants.LOG_TAG,"--- selected ----"+mPicturePage.getSelected());
+    }
+
+
 
     // ------------------------ EventBus register --------------
     public void registerEventBus() {
@@ -97,36 +91,69 @@ public class PictureView {
     }
 
     // ------------------------ EventBus handlers --------------
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onLoadSelectedPicture(LoadSelectedPictureEvent event) {
-        loadPicturePage(event.page);
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void onShow(ShowPictureEvent event){
+        Log.d(Constants.LOG_TAG,"--- ShowPictureEvent ---");
+        Log.d(Constants.LOG_TAG,"--- currentPage ---"+event.currentPage.numberCurrent);
+        Log.d(Constants.LOG_TAG,"--- pictureItem ---"+event.pictureItem.urlFullImage);
+        showNew(event.currentPage);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void needNextPicture(NeedNextPictureEvent event) {
-        Log.d(Constants.LOG_TAG, " ------ needNextPicture --- ");
-        presenter.scrollNextPicture();
+    public void onNeedNextPicture(NeedNextPictureEvent event){
+        int selected = mPicturePage.getSelected();
+        int max = mPicturePage.pictures.size()-1;
+
+        if(selected<max){
+            selected++;
+            mPicturePage.setSelected(selected);
+            addNext(mPicturePage);
+        }else if(mPicturePage.numberNext==0){
+            // Сообщить что страница в принципе последняя
+            mPictureFragmentAdapter.setFinalPage();
+        }
+        else{
+            // заказать у презентера следующую страницу если есть
+            // повесить ответ на onLoadNextPicture
+            presenter.tryNextPage(mPicturePage);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void needPrevPicture(NeedPrevPictureEvent event) {
-        Log.d(Constants.LOG_TAG, " ------ needPrevPicture --- ");
-//        presenter.scrollPrevPicture();
-
+    public void onNextPictureSuccess(PictureNextLoadSuccessEvent event){
+        addNext(event.page);
+        Log.d(Constants.LOG_TAG,"--- add next ----");
+        Log.d(Constants.LOG_TAG,"--- selected ----"+event.page.getSelected());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getNextPictureScroll(PictureScrollNextEvent event){
-        pictureFragmentAdapter.add(event.next);
-        viewPager.setCurrentItem(1);
-        pictureFragmentAdapter.notifyDataSetChanged();
+    public void onNeedPrevPicture(NeedPrevPictureEvent event){
+        int selected = mPicturePage.getSelected();
+        // предыдущая картинка на этой странице
+        if(selected>0){
+            selected--;
+            mPicturePage.setSelected(selected);
+            addPrev(mPicturePage);
+        }else if(mPicturePage.numberPrev==0){
+            // Сообщить что страница в принципе первая
+            mPictureFragmentAdapter.setStartPage();
+
+        }
+        else{
+            // заказать у презентера следующую страницу если есть
+            // повесить ответ на onLoadNextPicture
+            presenter.tryPrevPage(mPicturePage);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getPrevPictureScroll(PictureScrollPrevEvent event){
-        pictureFragmentAdapter.addPrev(event.prev);
-        viewPager.setCurrentItem(1);
-        pictureFragmentAdapter.notifyDataSetChanged();
+    public void onPrevPictureSuccess(PicturePrevLoadSuccessEvent event){
+        event.page.setSelected(event.page.pictures.size()-1);
+        addPrev(event.page);
+        Log.d(Constants.LOG_TAG,"--- add onPrevPictureSuccess ----");
+        Log.d(Constants.LOG_TAG,"--- selected ----"+event.page.getSelected());
     }
+
+
 
 }

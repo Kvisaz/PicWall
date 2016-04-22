@@ -4,4 +4,6 @@
     <string name="grid_page_title_prefix">Страница </string>
     <string name="grid_page_title_mid"> из </string>
     <string name="grid_page_title_postfix"></string>
+    <string name="picture_viewer_nopage_text_start">Привет! Вы достигли самой первой страницы.</string>
+    <string name="picture_viewer_nopage_text_final">Это рекорд! Вы достигли самой последней страницы.</string>
 </resources>

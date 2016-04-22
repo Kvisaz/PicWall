@@ -1,23 +1,17 @@
 package com.arellomobile.picwall.network;
+
 import android.graphics.Color;
 import android.util.Log;
 
 import com.arellomobile.picwall.Constants;
-import com.arellomobile.picwall.events.LogEvent;
-import com.arellomobile.picwall.events.ServerPicturePageEvent;
 import com.arellomobile.picwall.model.PictureItem;
+import com.arellomobile.picwall.model.PicturePage;
 import com.arellomobile.picwall.network.model.DesktopprPicture;
 import com.arellomobile.picwall.network.model.DesktopprResponse;
-import com.arellomobile.picwall.model.PicturePage;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
-import retrofit2.Call;
 import retrofit2.Response;
 
 /**
@@ -36,16 +30,16 @@ public class Client {
                     .execute();
 
             if(response.isSuccessful()){
-                EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response success"));
+                Log.d(Constants.LOG_TAG,"--- CLIENT getPageAsyncCallback response success - ");
                 page = getPicturePageFromResponse(response.body());
             }
             else {
-                EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response fault"));
+                Log.d(Constants.LOG_TAG,"--- CLIENT getPageAsyncCallback response FAULT - ");
             }
         }
         catch (Exception e)
         {
-            EventBus.getDefault().post(new LogEvent("getPageAsync Exception - " + e.toString()));
+            Log.d(Constants.LOG_TAG,"--- CLIENT getPageAsync Exception - " + e.toString());
         }
         finally {
             return page;
@@ -53,38 +47,7 @@ public class Client {
     }
 
 
-    public static void getPageAsync(int number){
-        try{
-            RetrofitFactory
-                    .getApiService()
-                    .getPage(number)
-                    .enqueue(new getPageAsyncCallback());
-        }
-        catch (Exception e)
-        {
-            EventBus.getDefault().post(new LogEvent("getPageAsync Exception - " + e.toString()));
-        }
-    }
 
-    private static class getPageAsyncCallback implements retrofit2.Callback<DesktopprResponse> {
-        @Override
-        public void onResponse(Call<DesktopprResponse> call, Response<DesktopprResponse> response) {
-            if(response.isSuccessful()){
-                EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response success"));
-                PicturePage page = getPicturePageFromResponse(response.body());
-                EventBus.getDefault().postSticky(new ServerPicturePageEvent(page));
-            }
-            else {
-                EventBus.getDefault().post(new LogEvent("getPageAsyncCallback response fault"));
-            }
-
-        }
-
-        @Override
-        public void onFailure(Call<DesktopprResponse> call, Throwable t) {
-            EventBus.getDefault().post(new LogEvent("getPageAsync onFailure - "+t.toString()));
-        }
-    }
 
     /*
         Конвертор из ответа сервера в общую модель - для удобства адаптации к другим серверам

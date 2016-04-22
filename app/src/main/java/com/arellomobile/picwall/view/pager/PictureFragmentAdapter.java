@@ -4,21 +4,22 @@ import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.arellomobile.picwall.Constants;
 import com.arellomobile.picwall.R;
 import com.arellomobile.picwall.model.PictureItem;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class PictureFragmentAdapter extends FragmentStatePagerAdapter {
     private SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>(); // *SmartFragmentStatePagerAdapter
     private static int MAX_NUM_ITEMS = 3;
-    private List<PictureItem> pictureItems;
+    private LinkedList<PictureItem> pictureItems;
 
     public PictureFragmentAdapter(FragmentManager fm) {
         super(fm);
@@ -32,13 +33,21 @@ public class PictureFragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        String url = pictureItems.get(position).urlFullImage;
-        return PictureFragment.getInstance(url);
+        PictureItem item=null;
+        if(position<pictureItems.size()){
+            item = pictureItems.get(position);
+        }
+        Log.d(Constants.LOG_TAG,"--- position in PFA ---- "+position);
+        if(item!=null){
+            return PictureFragment.getInstance(item.urlFullImage);
+        }
+        else
+            return PictureFragment.getInstance(null);
     }
 
     @Override
     public int getCount() {
-        return pictureItems.size();
+        return MAX_NUM_ITEMS;
     }
 
     // ------------------------- bitmap viewpager memory leak patch ---------------------
@@ -74,24 +83,41 @@ public class PictureFragmentAdapter extends FragmentStatePagerAdapter {
 
 
     // ------------------------- pictures ---------------------
-    public void clear(){
+    // just add one picture
+    public void set(PictureItem pictureItem){
         pictureItems.clear();
-    }
-
-    public void add(PictureItem pictureItem){
+        pictureItems.add(null);
         pictureItems.add(pictureItem);
-        if(pictureItems.size()> MAX_NUM_ITEMS) pictureItems.remove(0);
-        notifyDataSetChanged();
-    }
-
-    public void addPrev(PictureItem pictureItem){
-        pictureItems.add(0,pictureItem);
-        int l = pictureItems.size();
-        if(l > MAX_NUM_ITEMS) pictureItems.remove(l-1);
+        pictureItems.add(null);
         notifyDataSetChanged();
     }
 
     public void addNext(PictureItem pictureItem){
-        add(pictureItem);
+        pictureItems.removeFirst();
+        pictureItems.set(1,pictureItem);
+        pictureItems.add(new PictureItem());
+        notifyDataSetChanged();
     }
+
+    public void addPrev(PictureItem pictureItem){
+        pictureItems.addFirst(new PictureItem());
+        pictureItems.set(1,pictureItem);
+        pictureItems.removeLast();
+        notifyDataSetChanged();
+    }
+
+    public void setStartPage(){
+        PictureItem special = new PictureItem();
+        special.urlFullImage=PictureFragment.START_PAGE_TAG;
+        pictureItems.set(0,special);
+        notifyDataSetChanged();
+    }
+
+    public void setFinalPage(){
+        PictureItem special = new PictureItem();
+        special.urlFullImage=PictureFragment.FINAL_PAGE_TAG;
+        pictureItems.set(2,special);
+        notifyDataSetChanged();
+    }
+
 }
