@@ -5,8 +5,8 @@
     <dimen name="progress_bar_text_size">14sp</dimen>
     <dimen name="picture_viewer_nopage_text_size">18sp</dimen>
     <dimen name="match_parent">-1dp</dimen>
-    <dimen name="grid_picture_title_size">14sp</dimen>
-    <dimen name="grid_picture_info_size">12sp</dimen>
+    <dimen name="grid_picture_title_size">12sp</dimen>
+    <dimen name="grid_picture_info_size">10sp</dimen>
     <dimen name="color_grid_page_title_size">14sp</dimen>
     <dimen name="color_grid_page_title_padding">5dp</dimen>
     <dimen name="color_grid_page_title_margin">5dp</dimen>

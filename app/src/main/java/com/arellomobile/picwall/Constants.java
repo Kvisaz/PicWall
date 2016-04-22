@@ -1,6 +1,7 @@
 package com.arellomobile.picwall;
 
 import android.content.Context;
+import android.content.res.Configuration;
 
 public class Constants {
     public static String APP_NAME;
@@ -41,7 +42,8 @@ public class Constants {
         GRID_PAGE_TITLE_MID = context.getString(R.string.grid_page_title_mid);
         GRID_PAGE_TITLE_POSTFIX = context.getString(R.string.grid_page_title_postfix);
 
-        IS_TABLET = context.getResources().getBoolean(R.bool.isTablet);
+        IS_TABLET = context.getResources().getBoolean(R.bool.isTablet); // не сработало на Nexus 10, работало на Nook HD+
+       // IS_TABLET = isTablet(context);
 
         PICTURE_VIEWER_START_PAGE_TEXT = context.getString(R.string.picture_viewer_nopage_text_start);
         PICTURE_VIEWER_FINAL_PAGE_TEXT = context.getString(R.string.picture_viewer_nopage_text_final);
@@ -54,8 +56,14 @@ public class Constants {
         IS_PORTRAIT = context.getResources().getBoolean(R.bool.is_portrait);
         IS_LANDSCAPE = context.getResources().getBoolean(R.bool.is_landscape);
 
+
+
         /*
         *   Контроль числа рядов в сетке
+        *   - изначально такая идея казалась лучше, якобы контролируем все в одном месте
+        *   пока не начал тестировать... лучше это все на квалификаторы integer переделать
+        *   особенно для Nexus 10
+        *
         * */
         if(IS_TABLET)
         {
@@ -85,6 +93,13 @@ public class Constants {
 
         GRID_PICTURE_MAX_WIDTH =  context.getResources().getInteger(R.integer.grid_picture_max_width);
         PICTURE_VIEWER_MAX_WIDTH =  context.getResources().getInteger(R.integer.picture_viewer_max_width);
+    }
+
+    //
+    public static boolean isTablet(Context context) {
+        boolean xlarge = ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == 4);
+        boolean large = ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE);
+        return (xlarge || large);
     }
 
 }

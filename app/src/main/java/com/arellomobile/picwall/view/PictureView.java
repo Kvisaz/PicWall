@@ -38,9 +38,6 @@ public class PictureView {
     private ViewPager mViewPager;
     private PictureFragmentAdapter mPictureFragmentAdapter;
 
-
-
-
     public PictureView(View rootView, FragmentManager fm) {
         App.getComponent().inject(this);
 
